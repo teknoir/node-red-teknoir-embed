@@ -1,0 +1,141 @@
+<script type="text/javascript">
+    (function () {
+        const DEFAULT_WIDTH = 320;
+        const DEFAULT_HEIGHT = 160;
+
+        RED.nodes.registerType('embed', {
+            category: 'visualize',
+            color: '#88A882',
+            defaults: {
+                name: {value: ""},
+                url: {
+                    value: "",
+                    required: true,
+                    validate: function (v) {
+                        return (v && (v.indexOf('://') !== -1) && (v.trim().indexOf('http') === 0));
+                    }
+                },
+                width: {
+                    value: DEFAULT_WIDTH,
+                    required: true,
+                    validate: function (v) {
+                        return !v || !isNaN(parseInt(v, 10))
+                    }
+                },
+                height: {
+                    value: DEFAULT_HEIGHT,
+                    required: true,
+                    validate: function (v) {
+                        return !v || !isNaN(parseInt(v, 10))
+                    }
+                }
+            },
+            inputs: 0,
+            outputs: 0,
+            icon: "tn_dark.svg",
+            align: 'left',
+            label: function () {
+                return this.name || this.url || "embed";
+            },
+            labelStyle: function () {
+                return this.name ? "node_label_italic" : "";
+            }
+        });
+
+        let remove = function (id) {
+            const $embed = document.getElementById(`embed-html-${id}`);
+            $embed && $embed.remove();
+        }
+
+        let redraw = function (node) {
+            let id = node.id
+            remove(id);
+            render(id, node);
+        }
+
+        let render = function (id, node) {
+            let $embed = document.getElementById("embed-html-" + id);
+
+            if (!$embed) {
+                if (node.url) {
+                    const $container = document.getElementById(id)
+                    if (!$container) {
+                        return
+                    }
+
+                    let width = node.width ? parseInt(node.width) : DEFAULT_WIDTH;
+                    let height = node.height ? parseInt(node.height) : DEFAULT_HEIGHT;
+
+                    let foreignObject = document.createElementNS("http://www.w3.org/2000/svg", 'foreignObject');
+                    foreignObject.setAttribute('id', "embed-html-" + id);
+                    foreignObject.setAttribute('x', "0px");
+                    foreignObject.setAttribute('y', "30px");
+                    foreignObject.setAttribute('width', `${width}px`);
+                    foreignObject.setAttribute('height', `${height}px`);
+                    $container.insertBefore(foreignObject, $container.lastChild.nextSibling);
+
+                    let div = document.createElement("div");
+                    div.style.borderRadius = "5px";
+                    div.style.width = `${width}px`;
+                    div.style.height = `${height}px`;
+                    div.style.overflow = "hidden";
+                    foreignObject.appendChild(div);
+                    let iframe = document.createElement("iframe");
+                    iframe.src = node.url;
+                    iframe.width = `${width}`;
+                    iframe.height = `${height}`;
+                    iframe.frameBorder = "0";
+                    div.appendChild(iframe);
+                }
+            }
+        }
+
+        RED.events.on("editor:save", redraw);
+
+        RED.comms.subscribe("embed-render", function (event, msg) {
+            let node = RED.nodes.node(msg.id);
+            if (node) {
+                render(msg.id, node);
+            }
+        })
+    })();
+</script>
+
+<script type="text/html" data-template-name="embed">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i> <span data-i18n="httpin.label.url"></span></label>
+        <input type="text" id="node-input-url" placeholder="http://hostname:port">
+    </div>
+    <div class="form-row">
+        <label for="node-input-width"><i class="fa fa-arrows-h"></i> Width</label>
+        <input type="number" id="node-input-width" style="width:125px !important">
+        px
+    </div>
+    <div class="form-row">
+        <label for="node-input-height"><i class="fa fa-arrows-v"></i> Height</label>
+        <input type="number" id="node-input-height" style="width:125px !important">
+        px
+    </div>
+
+</script>
+
+<script type="text/html" data-help-name="embed">
+    <p>
+        The embed node render html right in the flow.
+    </p>
+
+    <h3>Inputs</h3>
+    No inputs.
+
+    <h3>Outputs</h3>
+    No outputs.
+
+    <h3>Details</h3>
+    <p>
+        Edit the node and enter a URL, set size and deploy! ;-)
+    </p>
+</script>

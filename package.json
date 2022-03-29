@@ -1,0 +1,33 @@
+{
+  "name": "node-red-teknoir-embed",
+  "version": "0.0.1",
+  "description": "A set of nodes to embed html in a flow on the Teknoir Platform",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teknoir/node-red-teknoir-embed.git"
+  },
+  "keywords": [
+    "node-red",
+    "teknoir",
+    "nodered"
+  ],
+  "node-red": {
+    "nodes": {
+      "teknoir-embed": "src/embed.js"
+    }
+  },
+  "author": "Anders Åslund <anders.aslund@teknoir.ai>",
+  "bugs": {
+    "url": "https://teknoir.ai"
+  },
+  "homepage": "https://teknoir.ai",
+  "dependencies": {
+    "node-fetch": "2.6.0",
+    "uuid": "8.3.2",
+    "canvas": "2.8.0",
+    "is-base64": "1.1.0"
+  }
+}
